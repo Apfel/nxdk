@@ -1,4 +1,4 @@
-#include <hal/debug.h>
+#include <nxdk/log_console.h>
 #include <hal/video.h>
 #include <hal/xbox.h>
 #include <windows.h>
@@ -52,6 +52,7 @@ static void provide_samples_callback(void *pac97Device, void *data)
 int main(void)
 {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    nxLogConsoleRegister();
 
     for (int i = 0; i < NUM_BUFFERS; i++) {
         buffers[i] = MmAllocateContiguousMemoryEx(buffer_size, 0, MAXRAM, 0,
@@ -74,7 +75,7 @@ int main(void)
     }
 
     /* Enable playback */
-    debugPrint("Playing voice...\n");
+    nxLogPrintf("Playing voice...\n");
     XAudioPlay();
 
     /* Audio will be played by hardware, we can loop here (or handle game logic)
@@ -82,7 +83,7 @@ int main(void)
      * samples are required.
      */
     while (1) {
-        debugPrint("Number of callbacks: %d\n", callback_count);
+        nxLogPrintf("Number of callbacks: %d\n", callback_count);
         Sleep(500);
     }
 

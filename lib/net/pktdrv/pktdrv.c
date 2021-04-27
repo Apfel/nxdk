@@ -24,7 +24,7 @@
 //mess with fpu unless you save and restore fpu processor state)
 
 #include <hal/xbox.h>
-#include <hal/debug.h>
+#include <nxdk/log.h>
 #include <xboxkrnl/xboxkrnl.h>
 
 #include "string.h"
@@ -55,18 +55,18 @@ extern int Pktdrv_Callback(unsigned char *packetaddr, unsigned int packetsize);
 struct s_MyStructures {
 	char 	MyContext[1];
 	unsigned char NbrRxBuffersWithoutCheck;
-	unsigned char Ethaddr[6];		
-	unsigned char Ethaddr2[6];		
+	unsigned char Ethaddr[6];
+	unsigned char Ethaddr2[6];
 	unsigned char Ethaddr_reversed[6];
 	KDPC 	MyPktdrvDpcObject;
 	ULONG	PktdrvIsrCounter;
-	KIRQL	IrqLevel;	
-	ULONG	Vector;		
-	ULONG	Speed;		
+	KIRQL	IrqLevel;
+	ULONG	Vector;
+	ULONG	Speed;
 	ULONG	OldPhyState;
 	ULONG	PhysicalMinusVirtual; // = buffers_physaddr - buffers_addrs;
-	ULONG	NbrRxBuffers;	
-	ULONG	RxBufferDesc;	//= buffers_addr + 2048; 
+	ULONG	NbrRxBuffers;
+	ULONG	RxBufferDesc;	//= buffers_addr + 2048;
 	ULONG 	RxBufferTail;	//= buffers_addr + 2048 + g_s->NbrRxBuffers * 8 - 8;
 	ULONG	RxBufferNext;	//= buffers_addr + 2048; //Point to next incoming packet entry
 	ULONG	NbrTxBuffers;
@@ -84,7 +84,7 @@ static KINTERRUPT 		s_MyInterruptObject;
 
 
 
-//Types and descriptions coming from 
+//Types and descriptions coming from
 //- ntddk.h (WinXP SP1 DDK)
 //- winddk.h (Reactos source)
 //- forcedeth.c (Linux NVidia nForce driver)
@@ -374,7 +374,7 @@ static int PktdrvRecvInterrupt(void)
 			//Not a received packet
 		}
 		else
-		{	
+		{
 			fatal=FALSE;
 
 			if (flag & NV_RX_ERROR)
@@ -397,7 +397,7 @@ static int PktdrvRecvInterrupt(void)
 				handled=Pktdrv_Callback(
 				(unsigned char *)( (*((ULONG *)p))-g_s->PhysicalMinusVirtual),
 				(unsigned int)( ( (*((ULONG *)(p+4))) & 0x7FF ) + 1 )	);
-				if (!handled) 
+				if (!handled)
 					return n; //We probably lack space up there
 				else
 					n++;
@@ -406,7 +406,7 @@ static int PktdrvRecvInterrupt(void)
 
 		//Empty the entry
 		*((ULONG *)(p+4))=NV_RX_AVAIL | 2045;
-			
+
 		//Have RxBufferNext Point to next entry in ring
 		if (g_s->RxBufferNext==g_s->RxBufferTail) //return to start of ring?
 			g_s->RxBufferNext=g_s->RxBufferDesc;
@@ -425,7 +425,7 @@ static BOOLEAN PktdrvSendReady(void)
 }
 
 //Checks for a patcket to send
-static void PktdrvSendInterrupt(void) 
+static void PktdrvSendInterrupt(void)
 {
 	ULONG p,flag;
 
@@ -472,8 +472,8 @@ static void PktdrvSendPacket(unsigned char *buffer, int length)
 				0);
 
 		*((ULONG *)p) = MmGetPhysicalAddress(buffer);
-		*((ULONG *)(p+4)) = (length-1) | 
-				NV_TX_VALID | 
+		*((ULONG *)(p+4)) = (length-1) |
+				NV_TX_VALID |
 				NV_TX_LASTPACKET;
 
 		g_s->QueuedTxPkts++;
@@ -519,7 +519,7 @@ static void PktdrvStopSendRecv(void)
 
 	for(i=0;i<500;i++)
 	{
-		if (	((REGB(NvRegReceiverStatus) & NVREG_RCVSTAT_BUSY)==0)	
+		if (	((REGB(NvRegReceiverStatus) & NVREG_RCVSTAT_BUSY)==0)
 			&&
 			((REGB(NvRegTransmitterStatus) & NVREG_SendSTAT_BUSY)==0)	)
 			break;
@@ -531,7 +531,7 @@ static void PktdrvStopSendRecv(void)
 	for(i=0;i<100000;i++)
 	{
 		if (REGB(NvRegTxRxControl) & NVREG_TXRXCTL_IDLE) break;
-		KeStallExecutionProcessor(10);	
+		KeStallExecutionProcessor(10);
 	}
 
 	REG(NvRegTxRxControl)=0;
@@ -546,7 +546,7 @@ static void PktdrvReset(void)
 	KeStallExecutionProcessor(10); //10 microseconds of busy-wait
 
 	REG(NvRegTxRxControl)=0;
-	KeStallExecutionProcessor(10);	
+	KeStallExecutionProcessor(10);
 
 	REG(NvRegUnknownSetupReg4)=0;
 	REG(NvRegIrqMask)=0;
@@ -565,7 +565,7 @@ static void PktdrvReset(void)
 
 
 //Checks possible speed or duplex mode change
-static void PktdrvMiiInterrupt(int mode) 
+static void PktdrvMiiInterrupt(int mode)
 {
 	//Verifies if speed or duplex mode changed
 	//mode=1 -> startup mode (calls PhyGetLinkState(0))
@@ -581,25 +581,25 @@ static void PktdrvMiiInterrupt(int mode)
 
 	//We want details (startup) or state changed (both modes)
 #ifdef DISPLAYMSG
-	debugPrint("Transceiver link state :\n");
-	if (state & PHY_LINK_RUNNING) 
-		debugPrint(" Running at "); 
-	else 
-		debugPrint(" NOT running at ");
-	if (state & PHY_LINK_100MBPS) 
-		debugPrint("100 Mbps ");
-	else 
-		if (state & PHY_LINK_10MBPS) 
-			debugPrint("10 Mbps ");
-		else 
-			debugPrint("unknown speed ");
+	nxLogPrintf("Transceiver link state :\n");
+	if (state & PHY_LINK_RUNNING)
+		nxLogPrintf(" Running at ");
+	else
+		nxLogPrintf(" NOT running at ");
+	if (state & PHY_LINK_100MBPS)
+		nxLogPrintf("100 Mbps ");
+	else
+		if (state & PHY_LINK_10MBPS)
+			nxLogPrintf("10 Mbps ");
+		else
+			nxLogPrintf("unknown speed ");
 	if (state & PHY_LINK_FULL_DUPLEX)
-		debugPrint("in full duplex mode\n");
+		nxLogPrintf("in full duplex mode\n");
 	else
 		if (state & PHY_LINK_HALF_DUPLEX)
-			debugPrint("in half duplex mode\n");
+			nxLogPrintf("in half duplex mode\n");
 		else
-			debugPrint("in unknown duplex mode\n");
+			nxLogPrintf("in unknown duplex mode\n");
 #endif
 	if (mode==0) PktdrvStopSendRecv(); //Pktdrv is running. Stop it.
 
@@ -610,7 +610,7 @@ static void PktdrvMiiInterrupt(int mode)
 
 	if (state & PHY_LINK_FULL_DUPLEX) //update mode in Pktdrv register
 		REG(NvRegDuplexMode) &= NVREG_DUPLEX_MODE_FDMASK;
-	else	
+	else
 		REG(NvRegDuplexMode) |= NVREG_DUPLEX_MODE_HDFLAG;
 
 	if (mode==0) PktdrvStartSendRecv(); //Mode changed. Restart Pktdrv.
@@ -634,9 +634,9 @@ static BOOLEAN __stdcall MyPktdrvIsr(PKINTERRUPT Interrupt, PVOID ServiceContext
 
 
 
-static void __stdcall MyPktdrvDpc(		PKDPC Dpc, 
-					PVOID DeferredContext, 
-					PVOID SystemArgument1, 
+static void __stdcall MyPktdrvDpc(		PKDPC Dpc,
+					PVOID DeferredContext,
+					PVOID SystemArgument1,
 					PVOID SystemArgument2	)
 {
 	//DPCs allow to use non reentrant procedures (called sequentially, FOR SURE).
@@ -649,7 +649,7 @@ static void __stdcall MyPktdrvDpc(		PKDPC Dpc,
 	if (g_running==0) return;
 
 	mii_status=0;
-	irq_status=	NVREG_IRQSTAT_BIT0EVENT |	
+	irq_status=	NVREG_IRQSTAT_BIT0EVENT |
 			NVREG_IRQSTAT_BIT1EVENT	|
 			NVREG_IRQSTAT_BIT2EVENT	|
 			NVREG_IRQSTAT_UNKEVENT;
@@ -668,8 +668,8 @@ static void __stdcall MyPktdrvDpc(		PKDPC Dpc,
 		mii_status=REG(NvRegMIIStatus);
 		irq_status=REG(NvRegIrqStatus);
 	};
-	REG(NvRegIrqMask)=	NVREG_IRQ_LINK | 	
-				NVREG_IRQ_TX_OK | 
+	REG(NvRegIrqMask)=	NVREG_IRQ_LINK |
+				NVREG_IRQ_TX_OK |
 				NVREG_IRQ_TX_ERROR |
 				NVREG_IRQ_RX_NOBUF |
 				NVREG_IRQ_RX |
@@ -716,30 +716,30 @@ int Pktdrv_Init(void)
 	//g_s holds the various needed structures
 	if (!g_s)
 	{
-		debugPrint("Can't allocate global structure.\n");
+		nxLogPrintf("Can't allocate global structure.\n");
 		return 0;
 	}
-	
+
 
 	g_s->Vector=HalGetInterruptVector(PktdrvInterrupt,&g_s->IrqLevel);
-	
-	KeInitializeDpc(&g_s->MyPktdrvDpcObject,&MyPktdrvDpc,&g_s->MyContext); 
+
+	KeInitializeDpc(&g_s->MyPktdrvDpcObject,&MyPktdrvDpc,&g_s->MyContext);
 
 	KeInitializeInterrupt(	&s_MyInterruptObject,
 				&MyPktdrvIsr,
 				&g_s->MyContext,
 				g_s->Vector,
 				g_s->IrqLevel,
-				LevelSensitive,	
-				TRUE	);		
+				LevelSensitive,
+				TRUE	);
 
 	PktdrvReset();
 
 	g_s->NbrRxBuffersWithoutCheck=NBBUFF; //Total buffers = NBBUFF+2 (Tx&Rx Descriptors)
 
-	n = g_s->NbrRxBuffersWithoutCheck; 	
-	g_s->NbrRxBuffers = MIN(n,256); 	
-	g_s->NbrTxBuffers = MIN(n,256); 	
+	n = g_s->NbrRxBuffersWithoutCheck;
+	g_s->NbrRxBuffers = MIN(n,256);
+	g_s->NbrTxBuffers = MIN(n,256);
 
 	//Rx ring will point to the pool of n allocated buffers
 	//Tx ring is empty at startup may point to any contiguous buffer physical address
@@ -760,33 +760,33 @@ int Pktdrv_Init(void)
 			0xFFFFFFFF,	//highest acceptable
 			0,  		//no need to align to specific boundaries multiple
 			PAGE_READWRITE | PAGE_NOCACHE);
-	if (!buffers_addr) 
+	if (!buffers_addr)
 	{
-		debugPrint("Can't allocate DMA reception buffers\n");
+		nxLogPrintf("Can't allocate DMA reception buffers\n");
 		free(g_s);
 		return 0;
 	}
 
 	//Write zeroes in first buffer and second buffer (descriptors)
-	memset((void *)buffers_addr, 0, 4096); 
+	memset((void *)buffers_addr, 0, 4096);
 
 	buffers_physaddr=MmGetPhysicalAddress((void *)buffers_addr);
 
-	g_s->PhysicalMinusVirtual = buffers_physaddr - buffers_addr; 
+	g_s->PhysicalMinusVirtual = buffers_physaddr - buffers_addr;
 
 	g_s->RxBufferDesc = buffers_addr + 2048;
 	g_s->RxBufferNext = buffers_addr + 2048;
 	g_s->RxBufferTail = buffers_addr + 2048 + g_s->NbrRxBuffers * 8 - 8;
 
-	g_s->TxBufferDesc = buffers_addr; 
-	g_s->TxBufferLast = buffers_addr; 
+	g_s->TxBufferDesc = buffers_addr;
+	g_s->TxBufferLast = buffers_addr;
 	g_s->TxBufferNext = buffers_addr;
 	g_s->TxBufferTail = buffers_addr + 8 * g_s->NbrTxBuffers - 8;
 
 	p=buffers_addr + 4096 + 2 + g_s->PhysicalMinusVirtual; //Points 1st buffer at offset 2
 	p2=buffers_addr + 2048;
 
-	while(p2 <= g_s->RxBufferTail)	
+	while(p2 <= g_s->RxBufferTail)
 	{
 		*((DWORD *)p2)=p; //Physical address of offset 2 of buffer
 		*((DWORD *)(p2+4))=NV_RX_AVAIL | 2045; //Makes all Rx buffers available
@@ -807,11 +807,11 @@ int Pktdrv_Init(void)
 
 	len=0;
 	ExQueryNonVolatileSetting(EEPROM_INDEX_MACADDR,&type,g_s->Ethaddr,6,&len);
-	if (len!=6) 
-		debugPrint("Can't read ethernet address from EEPROM\n");
+	if (len!=6)
+		nxLogPrintf("Can't read ethernet address from EEPROM\n");
 #ifdef DISPLAYMSG
 	else
-		debugPrint("EEPROM MacAddress = %02x %02x %02x %02x %02x %02x\n",
+		nxLogPrintf("EEPROM MacAddress = %02x %02x %02x %02x %02x %02x\n",
 				g_s->Ethaddr[0],
 				g_s->Ethaddr[1],
 				g_s->Ethaddr[2],
@@ -868,14 +868,14 @@ int Pktdrv_Init(void)
 	//XBOX specific (nForce specific)
 	if (PhyInitialize(0,0)!=0) //Initialize transceiver
 	{
-		debugPrint("PhyInitialize error\n");
+		nxLogPrintf("PhyInitialize error\n");
 		Pktdrv_Quit();
 		return 0;
 	}
 
 	REG(NvRegAdapterControl)=NVREG_ADAPTCTL_RUNNING;
-			
-	KeStallExecutionProcessor(50); 
+
+	KeStallExecutionProcessor(50);
 
 	PktdrvMiiInterrupt(1); //force display/update of current speed and duplex mode
 
@@ -886,8 +886,8 @@ int Pktdrv_Init(void)
 
 	REG(NvRegUnknownSetupReg4)=NVREG_UNKSETUP4_VAL;
 
-	REG(NvRegIrqMask)=	NVREG_IRQ_LINK | 	
-				NVREG_IRQ_TX_OK | 
+	REG(NvRegIrqMask)=	NVREG_IRQ_LINK |
+				NVREG_IRQ_TX_OK |
 				NVREG_IRQ_TX_ERROR |
 				NVREG_IRQ_RX_NOBUF |
 				NVREG_IRQ_RX |
@@ -895,16 +895,16 @@ int Pktdrv_Init(void)
 
 	status=KeConnectInterrupt(&s_MyInterruptObject);
 	status = 1; // KeConnectInterrupt is returning 0... but it seems to work
-	
-	if (status==0) 
+
+	if (status==0)
 	{
-		debugPrint("KeConnectInterrupt error\n");
+		nxLogPrintf("KeConnectInterrupt error\n");
 		Pktdrv_Quit();
 		return 0;
 	}
 #ifdef DISPLAYMSG
 	else
-		debugPrint("Network interruption initialized successfully\n");
+		nxLogPrintf("Network interruption initialized successfully\n");
 #endif
 	return 1;
 }
@@ -918,7 +918,7 @@ int Pktdrv_ReceivePackets(void)
 
 void Pktdrv_SendPacket(unsigned char *buffer,int length)
 {
-	if (g_running) 
+	if (g_running)
 	{
 		PktdrvSendInterrupt();
 		//if QueuedTxPkts>=n (n=number of outgoing buffers -ring- in calling app)

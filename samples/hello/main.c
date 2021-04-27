@@ -1,15 +1,15 @@
-#include <hal/debug.h>
-#include <hal/video.h>
+#include <hal/led.h>
+
+#include <nxdk/log_udp.h>
+
 #include <windows.h>
 
 int main(void)
 {
-    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    nxLogUDPRegister(NULL, NULL, NULL);
 
-    while(1) {
-        debugPrint("Hello nxdk!\n");
-        Sleep(2000);
-    }
+    nxLogPrint("Hello nxdk!\n");
+    while (1) SwitchToThread();
 
     return 0;
 }

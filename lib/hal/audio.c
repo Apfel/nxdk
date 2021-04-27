@@ -121,7 +121,7 @@ void XDumpAudioStatus(void)
 	if (pac97device)
 	{
 		volatile unsigned char *pb = (unsigned char *)pac97device->mmio;
-		//debugPrint("CIV=%02x LVI=%02x SR=%04x CR=%02x\n", pb[0x114], pb[0x115], pb[0x116], pb[0x11B]);
+		//nxLogPrintf("CIV=%02x LVI=%02x SR=%04x CR=%02x\n", pb[0x114], pb[0x115], pb[0x116], pb[0x11B]);
 	}
 }
 

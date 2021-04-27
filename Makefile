@@ -52,18 +52,18 @@ FP20COMPILER = $(NXDK_DIR)/tools/fp20compiler/fp20compiler
 EXTRACT_XISO = $(NXDK_DIR)/tools/extract-xiso/build/extract-xiso
 TOOLS        = cxbe vp20compiler fp20compiler extract-xiso
 NXDK_CFLAGS  = -target i386-pc-win32 -march=pentium3 \
-               -ffreestanding -nostdlib -fno-builtin \
-               -I$(NXDK_DIR)/lib -I$(NXDK_DIR)/lib/xboxrt/libc_extensions \
-               -isystem $(NXDK_DIR)/lib/pdclib/include \
-               -I$(NXDK_DIR)/lib/pdclib/platform/xbox/include \
-               -I$(NXDK_DIR)/lib/winapi \
-               -I$(NXDK_DIR)/lib/xboxrt/vcruntime \
-               -DNXDK -D__STDC__=1
+	-ffreestanding -nostdlib -fno-builtin \
+	-I$(NXDK_DIR)/lib -I$(NXDK_DIR)/lib/xboxrt/libc_extensions \
+	-isystem $(NXDK_DIR)/lib/pdclib/include \
+	-I$(NXDK_DIR)/lib/pdclib/platform/xbox/include \
+	-I$(NXDK_DIR)/lib/winapi \
+	-I$(NXDK_DIR)/lib/xboxrt/vcruntime \
+	-DNXDK -D__STDC__=1
 NXDK_ASFLAGS = -target i386-pc-win32 -march=pentium3 \
-               -nostdlib -I$(NXDK_DIR)/lib -I$(NXDK_DIR)/lib/xboxrt
+	-nostdlib -I$(NXDK_DIR)/lib -I$(NXDK_DIR)/lib/xboxrt
 NXDK_CXXFLAGS = -I$(NXDK_DIR)/lib/libcxx/include $(NXDK_CFLAGS) -fno-exceptions
 NXDK_LDFLAGS = -subsystem:windows -fixed -base:0x00010000 \
-               -stack:65536 -merge:.edata=.edataxb
+	-stack:65536 -merge:.edata=.edataxb
 
 ifeq ($(DEBUG),y)
 NXDK_ASFLAGS += -g -gdwarf-4
@@ -92,6 +92,11 @@ endif
 ifneq ($(NXDK_SDL),)
 include $(NXDK_DIR)/lib/sdl/SDL2/Makefile.xbox
 include $(NXDK_DIR)/lib/sdl/Makefile
+endif
+
+ifneq ($(NXDK_UDP_INTERNAL_INIT),)
+NXDK_CFLAGS += -DNXDK_UDP_USE_INTERNAL_NETIF_IMPL
+NXDK_CXXFLAGS += -DNXDK_UDP_USE_INTERNAL_NETIF_IMPL
 endif
 
 V = 0
@@ -184,9 +189,9 @@ $(EXTRACT_XISO):
 .PHONY: clean
 clean: $(CLEANRULES)
 	$(VE)rm -f $(TARGET) \
-	           main.exe main.exe.manifest main.lib \
-	           $(OBJS) $(SHADER_OBJS) $(DEPS) \
-	           $(GEN_XISO)
+		main.exe main.exe.manifest main.lib \
+		$(OBJS) $(SHADER_OBJS) $(DEPS) \
+		$(GEN_XISO)
 
 .PHONY: distclean
 distclean: clean

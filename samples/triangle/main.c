@@ -12,7 +12,7 @@
 #include <string.h>
 #include <strings.h>
 #include <xboxkrnl/xboxkrnl.h>
-#include <hal/debug.h>
+#include <nxdk/log_console.h>
 #include <windows.h>
 
 static uint32_t *alloc_vertices;
@@ -54,9 +54,10 @@ int main(void)
     int       fps, frames, frames_total;
 
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    nxLogConsoleRegister();
 
     if ((status = pb_init())) {
-        debugPrint("pb_init Error %d\n", status);
+        nxLogPrintf("pb_init Error %d\n", status);
         Sleep(2000);
         return 1;
     }

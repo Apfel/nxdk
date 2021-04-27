@@ -11,7 +11,7 @@
 #include <hal/input.h>
 #include <hal/xbox.h>
 #include <xboxkrnl/xboxkrnl.h>
-#include <hal/debug.h>
+#include <nxdk/log_console.h>
 
 #define USE_DHCP         1
 #define PKT_TMR_INTERVAL 5 /* ms */
@@ -41,6 +41,8 @@ static void packet_timer(void *arg)
 int main(void)
 {
     XVideoSetMode(640,480,32,REFRESH_DEFAULT);
+    nxLogConsoleRegister();
+    
     sys_sem_t init_complete;
     const ip4_addr_t *ip;
     static ip4_addr_t ipaddr, netmask, gw;
@@ -71,7 +73,7 @@ int main(void)
     g_pnetif = netif_add(&nforce_netif, &ipaddr, &netmask, &gw,
                          NULL, nforceif_init, ethernet_input);
     if (!g_pnetif) {
-        debugPrint("netif_add failed\n");
+        nxLogPrintf("netif_add failed\n");
         return 1;
     }
 
@@ -85,17 +87,17 @@ int main(void)
     packet_timer(NULL);
 
 #if USE_DHCP
-    debugPrint("Waiting for DHCP...\n");
+    nxLogPrintf("Waiting for DHCP...\n");
     while (dhcp_supplied_address(g_pnetif) == 0)
         NtYieldExecution();
-    debugPrint("DHCP bound!\n");
+    nxLogPrintf("DHCP bound!\n");
 #endif
 
-    debugPrint("\n");
-    debugPrint("IP address.. %s\n", ip4addr_ntoa(netif_ip4_addr(g_pnetif)));
-    debugPrint("Mask........ %s\n", ip4addr_ntoa(netif_ip4_netmask(g_pnetif)));
-    debugPrint("Gateway..... %s\n", ip4addr_ntoa(netif_ip4_gw(g_pnetif)));
-    debugPrint("\n");
+    nxLogPrintf("\n");
+    nxLogPrintf("IP address.. %s\n", ip4addr_ntoa(netif_ip4_addr(g_pnetif)));
+    nxLogPrintf("Mask........ %s\n", ip4addr_ntoa(netif_ip4_netmask(g_pnetif)));
+    nxLogPrintf("Gateway..... %s\n", ip4addr_ntoa(netif_ip4_gw(g_pnetif)));
+    nxLogPrintf("\n");
 
     http_server_bsd();
     Pktdrv_Quit();

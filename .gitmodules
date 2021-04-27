@@ -1,33 +1,33 @@
 [submodule "tools/extract-xiso"]
-	path = tools/extract-xiso
-	url = https://github.com/XboxDev/extract-xiso.git
+    path = tools/extract-xiso
+    url = https://github.com/XboxDev/extract-xiso.git
 [submodule "lib/net/lwip"]
-	path = lib/net/lwip
-	url = https://github.com/lwip-tcpip/lwip.git
+    path = lib/net/lwip
+    url = https://github.com/lwip-tcpip/lwip.git
 [submodule "lib/sdl/SDL2"]
-	path = lib/sdl/SDL2
-	url = https://github.com/XboxDev/nxdk-sdl.git
-	branch = nxdk
+    path = lib/sdl/SDL2
+    url = https://github.com/XboxDev/nxdk-sdl.git
+    branch = nxdk
 [submodule "lib/pdclib"]
-	path = lib/pdclib
-	url = https://github.com/XboxDev/nxdk-pdclib.git
-	branch = nxdk
+    path = lib/pdclib
+    url = https://github.com/XboxDev/nxdk-pdclib.git
+    branch = nxdk
 [submodule "lib/libcxx"]
-	path = lib/libcxx
-	url = https://github.com/XboxDev/nxdk-libcxx.git
-	branch = nxdk
+    path = lib/libcxx
+    url = https://github.com/XboxDev/nxdk-libcxx.git
+    branch = nxdk
 [submodule "lib/zlib"]
-	path = lib/zlib/zlib
-	url = https://github.com/madler/zlib.git
+    path = lib/zlib/zlib
+    url = https://github.com/madler/zlib.git
 [submodule "lib/libpng/libpng"]
-	path = lib/libpng/libpng
-	url = https://github.com/glennrp/libpng.git
+    path = lib/libpng/libpng
+    url = https://github.com/glennrp/libpng.git
 [submodule "lib/libjpeg/libjpeg-turbo"]
-	path = lib/libjpeg/libjpeg-turbo
-	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
+    path = lib/libjpeg/libjpeg-turbo
+    url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
 [submodule "lib/sdl/SDL_ttf"]
-	path = lib/sdl/SDL_ttf
-	url = https://github.com/libsdl-org/SDL_ttf.git
+    path = lib/sdl/SDL_ttf
+    url = https://github.com/libsdl-org/SDL_ttf.git
 [submodule "lib/sdl/SDL2_image"]
-	path = lib/sdl/SDL2_image
-	url = https://github.com/libsdl-org/SDL_image.git
+    path = lib/sdl/SDL2_image
+    url = https://github.com/libsdl-org/SDL_image.git

@@ -145,7 +145,7 @@ static void hub_irq(struct urb *urb, struct pt_regs *regs)
 	default:		/* presumably an error */
 		/* Cause a hub reset after 10 consecutive errors */
 		dev_dbg (&hub->intf->dev, "transfer --> %d\n", urb->status);
-		//debugPrint("transfer --> %d\n", urb->status);
+		//nxLogPrintf("transfer --> %d\n", urb->status);
 		if ((++hub->nerrors < 10) || hub->error)
 			goto resubmit;
 		hub->error = urb->status;

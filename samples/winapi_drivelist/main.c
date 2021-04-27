@@ -1,4 +1,4 @@
-#include <hal/debug.h>
+#include <nxdk/log_console.h>
 #include <hal/video.h>
 #include <nxdk/mount.h>
 #include <windows.h>
@@ -6,18 +6,19 @@
 int main(void)
 {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    nxLogConsoleRegister();
 
     // Mount some drives for demonstration purposes
     BOOL ret;
     ret = nxMountDrive('C', "\\Device\\Harddisk0\\Partition2\\");
     if (!ret) {
-        debugPrint("Failed to mount C: drive!\n");
+        nxLogPrintf("Failed to mount C: drive!\n");
         Sleep(5000);
         return 1;
     }
     ret = nxMountDrive('E', "\\Device\\Harddisk0\\Partition1\\");
     if (!ret) {
-        debugPrint("Failed to mount E: drive!\n");
+        nxLogPrintf("Failed to mount E: drive!\n");
         Sleep(5000);
         return 1;
     }
@@ -25,11 +26,11 @@ int main(void)
     // Retrieve drive bitmaks. Every bit represents one drive letter
     DWORD driveBits = GetLogicalDrives();
     if (driveBits == 0 && GetLastError() != ERROR_SUCCESS) {
-        debugPrint("Failed to retrieve drive bitmask!\n");
+        nxLogPrintf("Failed to retrieve drive bitmask!\n");
         Sleep(5000);
         return 1;
     }
-    debugPrint("Drive bitmask: 0x%x\n\n", driveBits);
+    nxLogPrintf("Drive bitmask: 0x%x\n\n", driveBits);
 
 
     // Reserve buffer long enough for all possible drive strings plus null-terminator
@@ -38,25 +39,25 @@ int main(void)
     DWORD charsWritten = GetLogicalDriveStringsA(sizeof(buffer)-1, buffer);
     if (charsWritten == 0) {
         // Additional error info can be retrieved with GetLastError()
-        debugPrint("Failed to retrieve drive strings!\n");
+        nxLogPrintf("Failed to retrieve drive strings!\n");
         Sleep(5000);
         return 1;
     }
 
     if (charsWritten > sizeof(buffer) - 1) {
         // Can't happen here as our buffer is large enough to cover all possibilities
-        debugPrint("Buffer for GetLogicalDriveStringsA too small!\n");
+        nxLogPrintf("Buffer for GetLogicalDriveStringsA too small!\n");
         Sleep(5000);
         return 1;
     }
 
-    debugPrint("Drives found:\n");
+    nxLogPrintf("Drives found:\n");
     char *drive = buffer;
     while (drive < buffer + charsWritten) {
-        debugPrint("%s\n", drive);
+        nxLogPrintf("%s\n", drive);
         while(*drive++);
     }
-    debugPrint("\ndone");
+    nxLogPrintf("\ndone");
 
     while(1) {
         Sleep(2000);

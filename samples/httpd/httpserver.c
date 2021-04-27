@@ -57,8 +57,8 @@ http_server_netconn_serve(struct netconn *conn)
 
     /* Get and display remote ip address and request headers */
     netconn_peer(conn, &naddr, &port);
-    debugPrint("[Request from %s]\n", ip4addr_ntoa(ip_2_ip4(&naddr)));
-    for (int i = 0; i < buflen; i++) debugPrint("%c", buf[i]);
+    nxLogPrintf("[Request from %s]\n", ip4addr_ntoa(ip_2_ip4(&naddr)));
+    for (int i = 0; i < buflen; i++) nxLogPrintf("%c", buf[i]);
 
     if ((buflen >= 9) && (memcmp(buf, "GET /quit", 9) == 0))
     {

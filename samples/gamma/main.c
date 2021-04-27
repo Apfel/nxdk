@@ -2,24 +2,22 @@
 #include <string.h>
 #include <math.h>
 #include <hal/video.h>
-#include <hal/debug.h>
+#include <nxdk/log_console.h>
 #include <windows.h>
 
 static void draw_title(const char* title)
 {
-    extern int nextCol;
-    extern int nextRow;
-    nextCol = 25;
-    nextRow = 25;
-    debugPrint("%s", title);
+    nxLogConsoleMoveCursor(25, 25);
+    nxLogPrintf("%s", title);
     for(int i = strlen(title); i < 60; i++) {
-        debugPrint(" ");
+        nxLogPrintf(" ");
     }
 }
 
 int main(void)
 {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    nxLogConsoleRegister();
 
     /* Create test image in framebuffer */
     volatile uint32_t *rgbx = (uint32_t*)XVideoGetFB();
